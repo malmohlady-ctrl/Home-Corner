@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121013">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Basement Belt — Home Workout</title>
+<style>
+:root{--bg:#121013;--card:#1a171b;--ink:#f5f1e8;--muted:#a09a92;--primary:#e5383b;--primaryT:#ff6b6f;--primary2:#3a1414;--gold:#ffb627;--gold2:#3a2c10;--line:#2a2529}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#0d0b0d;color:var(--ink);padding:24px 18px 22px;border-radius:0 0 24px 24px;border-bottom:2px solid var(--primary)}
+.wrap{max-width:760px;margin:auto}header .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:700}
+h1{font-size:30px;line-height:1.1;margin:8px 0}h1 .accent{color:var(--primaryT)}header p{margin:8px 0 0;color:var(--muted)}
+nav{display:flex;gap:8px;padding:14px 14px 0;max-width:760px;margin:auto}
+nav button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:12px;padding:11px 5px;font-weight:700}
+nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+main{padding:14px;max-width:760px;margin:auto}.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:13px;box-shadow:0 2px 8px #00000066}
+h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:0 0 7px}.muted{color:var(--muted)}.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center}.row>*{min-width:0}.between{justify-content:space-between}
+select,button,input{font:inherit}
+button.primary,button.secondary,button.danger{border:0;border-radius:12px;padding:13px 15px;font-weight:750;cursor:pointer}
+button.primary{background:var(--primary);color:#fff}button.secondary{background:var(--primary2);color:var(--primaryT)}button.danger{background:#2a1414;color:var(--primaryT)}
+button:disabled{opacity:.45;cursor:not-allowed}.full{width:100%}
+.pills{display:flex;gap:8px;flex-wrap:wrap}.pill{border-radius:999px;padding:6px 10px;background:var(--gold2);color:var(--gold);font-size:12px;font-weight:700}
+.pill.crimson{background:var(--primary2);color:var(--primaryT)}
+.progress{height:9px;border-radius:20px;background:#262125;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:width .2s}
+.timer{text-align:center;padding:18px 0 12px}.phase{font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--primaryT)}.clock{font-size:clamp(56px,15vw,82px);letter-spacing:-.06em;line-height:1.1;font-variant-numeric:tabular-nums;font-weight:800;margin:8px 0}.steptext{font-size:17px;font-weight:700}.quote{border-left:4px solid var(--gold);padding:10px 13px;background:var(--gold2);border-radius:0 10px 10px 0;color:#f0c778}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#211d20;padding:12px;border-radius:12px}.stat strong{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}
+.modbtn{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--ink)}
+.modbtn.sel{border:2px solid var(--primary);padding:13px}
+.modbtn .t{font-weight:800;font-size:17px}.modbtn .d{font-size:13px;color:var(--muted);margin-top:4px}
+.exlist{margin:8px 0 0;padding-left:20px;font-size:14px;color:var(--muted)}.exlist li{margin:3px 0}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.legend div{background:#211d20;border:1px solid var(--line);border-radius:10px;padding:9px 6px;text-align:center}
+.legend b{display:block;font-size:19px;color:var(--gold)}.legend span{font-size:11px;color:var(--muted)}
+footer{padding:4px 18px 28px;text-align:center;color:var(--muted);font-size:12px;max-width:760px;margin:auto}
+hr{border:0;border-top:1px solid var(--line);margin:15px 0}
+input[type=range]{width:100%;accent-color:var(--primary)}
+details summary{cursor:pointer;font-weight:700}
+.streakbanner{display:flex;align-items:center;gap:12px}
+.streaknum{font-size:38px;font-weight:800;color:var(--gold);line-height:1}
+@media(min-width:600px){main{padding:18px}.card{padding:20px}.timer{padding:20px 0}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Home workout · No gym required</div><h1>Home <span class="accent">Corner</span></h1><p>Dumbbells. Boxing. Core. Your living room is the arena.</p></div></header>
+<nav aria-label="Main navigation">
+<button class="active" data-tab="today">Today</button><button data-tab="plan">Plan</button><button data-tab="progress">Progress</button>
+</nav>
+<main>
+<section id="today" class="panel active">
+<div class="card"><div class="streakbanner"><div class="streaknum" id="streakCount">0</div><div><div style="font-weight:800">day streak</div><div class="small muted" id="streakSub">Complete a workout to start your streak.</div></div><span class="pill" id="totalPill" style="margin-left:auto">0 sessions</span></div></div>
+<div class="card"><h2>Choose your workout</h2><div id="modulePicker"></div></div>
+<div class="card">
+<div class="row between"><div><div class="small muted">UP NEXT</div><h2 id="workoutTitle">Dumbbell Circuit</h2></div><span class="pill crimson" id="workoutDuration">~29 min</span></div>
+<p id="workoutSummary" class="muted"></p>
+<div class="timer">
+<div class="phase" id="phase">Ready when you are</div><div class="clock" id="clock">00:00</div><div class="steptext" id="stepText">Pick a workout and hit start</div>
+<div class="small muted" id="stepCount" style="margin-top:7px"></div>
+</div>
+<div class="progress"><span id="timerProgress"></span></div>
+<div class="row" style="margin-top:15px"><button class="primary" id="startBtn" style="flex:1">Start workout</button><button class="secondary" id="pauseBtn" disabled>Pause</button><button class="secondary" id="skipBtn" disabled>Skip</button></div>
+<p class="small muted" style="margin-bottom:0">Voice cues use your phone's sound. The screen stays awake during a workout. If you lock your phone, cues may pause, but the timer catches up to the real time when you come back.</p>
+</div>
+<div class="card"><details><summary>Voice settings</summary>
+<div style="margin-top:10px"><label for="voiceRate" class="small" style="font-weight:700">Speed: <span id="voiceRateLabel">0.95</span>×</label><input id="voiceRate" type="range" min="0.7" max="1.3" step="0.05" value="0.95"></div>
+<div class="row" style="margin-top:10px"><button class="secondary" id="voiceTest">Test voice</button></div>
+<p class="small muted" style="margin-bottom:0">Built-in coach voice. The speed slider applies to the voice cues.</p>
+</details></div>
+</section>
+<section id="plan" class="panel">
+<div class="card"><h2>Dumbbell Circuit <span class="pill crimson">~29 min</span></h2><p class="muted">Your upper-body video, minus the plank jacks. 29 exercises, 45 seconds work / 15 seconds rest. Chest, back, arms, shoulders and abs.</p><ol class="exlist" id="dumbbellList"></ol></div>
+<div class="card"><h2>Championship Rounds <span class="pill crimson">~20 min</span></h2><p class="muted">Shadow boxing, corner-coach style. 2-minute guided warm-up, four 3-minute rounds with called combos, 1-minute rests, and a 2-minute abs blast to close.</p>
+<div class="small" style="font-weight:800;margin-top:10px">COMBO LEGEND</div>
+<div class="legend">
+<div><b>1</b><span>Jab</span></div><div><b>2</b><span>Cross</span></div><div><b>3</b><span>Lead Hook</span></div>
+<div><b>4</b><span>Rear Hook</span></div><div><b>5</b><span>Lead Uppercut</span></div><div><b>6</b><span>Rear Uppercut</span></div>
+</div>
+<ol class="exlist">
+<li>Warm-up (2:00) — arm circles, torso twists, bounce on toes</li>
+<li>Round 1 (3:00) — The One-Two School: 1-2 · 1-1-2 · 2-3-2 · 1-2-3-2</li>
+<li>Rest (1:00)</li>
+<li>Round 2 (3:00) — Hooks: 1-2-3 · 3-2-3 · 1-3-2 · 2-4-2</li>
+<li>Rest (1:00)</li>
+<li>Round 3 (3:00) — Upstairs Downstairs: 1-6-3-2 · 5-2-3 · 2-5-2-3 · 1-2-5-2</li>
+<li>Rest (1:00)</li>
+<li>Round 4 (3:00) — Championship Round: freestyle power, everything you've got</li>
+<li>Abs blast (2:00) — crunches, leg raises, Russian twists, plank</li>
+</ol></div>
+<div class="card"><h2>Core Finisher <span class="pill crimson">~8 min</span></h2><p class="muted">8 exercises, 40 seconds on / 20 seconds off. Short, sharp, done.</p><ol class="exlist" id="coreList"></ol></div>
+</section>
+<section id="progress" class="panel">
+<div class="card"><h2>Your progress</h2><div class="statgrid"><div class="stat"><strong id="doneCount">0</strong><span>Sessions completed</span></div><div class="stat"><strong id="minCount">0</strong><span>Minutes trained</span></div><div class="stat"><strong id="pstreakCount">0</strong><span>Day streak</span></div></div><hr><div class="row between"><h3>Workout history</h3><button class="secondary small" id="exportBtn">Export data</button></div><div id="historyList" class="muted small">Complete your first workout to see it here.</div><hr><button class="danger full" id="resetBtn">Reset all progress</button><p class="small muted">Progress is saved on this device in this browser. Clearing browser data or switching devices may erase it. Export a backup occasionally.</p></div>
+</section>
+</main>
+<footer>Free, self-contained home workout tool · No account, subscription or data sent to a server.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const key="basementbelt.v1";
+let state={completed:[],selectedModule:"dumbbell"};
+try{const s=JSON.parse(localStorage.getItem(key)||"null");if(s)state={...state,...s};}catch(e){}
+function save(){try{localStorage.setItem(key,JSON.stringify(state));}catch(e){}}
+function fmt(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function dateKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* ---------- voice ---------- */
+const prefKey="basementbelt.prefs.v1";
+let prefs={rate:.95};
+try{const p=JSON.parse(localStorage.getItem(prefKey)||"null");if(p)prefs={...prefs,...p};}catch(e){}
+function savePrefs(){try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(e){}}
+function speak(msg){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.rate=Number(prefs.rate)||.95;speechSynthesis.speak(u);}catch(e){}}
+function tone(freq,duration){freq=freq||700;duration=duration||.18;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=new C();const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=freq;g.gain.value=.07;o.connect(g);g.connect(ctx.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);o.stop(ctx.currentTime+duration);setTimeout(()=>ctx.close(),duration*1000+100);}catch(e){}}
+function renderVoice(){$("voiceRate").value=prefs.rate;$("voiceRateLabel").textContent=(Number(prefs.rate)||.95).toFixed(2);}
+$("voiceRate").addEventListener("input",e=>{prefs.rate=+e.target.value;$("voiceRateLabel").textContent=prefs.rate.toFixed(2);savePrefs();});
+$("voiceTest").addEventListener("click",()=>speak("This is your corner coach. Let's work."));
+/* ---------- workout content ---------- */
+const DUMBBELL=[
+"3X Hammer Curl + 3X Press","Bent Over Back Rows","Renegade Row","Close Grip to Rotational ISO Chest Press",
+"Kneeling Front Raise","Kneeling Inward Curls","L-Sit Leg Raise","Alt In and Out","Gorilla Rows",
+"Front to Side Raise (Right)","Front to Side Raise (Left)","Good Morning","Alt Upright Rows","Chest Press + Opener",
+"ISO to Double Chest Fly","Triceps to Tate Press","Kneeling Curl to Press to Extension","Pullover to Reverse Crunch",
+"Sit-Up to DB Tap","Push-Up to Ranger to Curls","Bent Over Twist Row (Right)","Bent Over Twist Row (Left)",
+"Single to Double Triceps Kickback","3X Twist Curl + Hold","Weighted Crunches","Skull Crusher + Flutters",
+"Concentration Curl (Right)","Concentration Curl (Left)","Decline Reverse Press"];
+function sayName(n){return n.replace(/\+/g," plus ").replace(/3X/g,"3 X").replace(/\(Right\)/g,"right").replace(/\(Left\)/g,"left");}
+function buildDumbbell(){
+ const steps=[{label:"Get ready",sub:"First up: "+DUMBBELL[0],secs:10,say:"Get ready. First up: "+sayName(DUMBBELL[0])}];
+ DUMBBELL.forEach((ex,i)=>{
+  const next=DUMBBELL[i+1];
+  steps.push({label:"Exercise "+(i+1)+" of "+DUMBBELL.length,sub:ex,secs:45,say:"Exercise "+(i+1)+". "+sayName(ex)+". Go!"});
+  steps.push({label:"Rest",sub:next?("Next up: "+next):"Nearly there",secs:15,say:"Rest."});
+ });
+ return steps;
+}
+const NUMW={1:"One",2:"Two",3:"Three",4:"Four",5:"Five",6:"Six"};
+function comboWords(c){return c.split("-").map(n=>NUMW[n]||n).join(", ")+"!";}
+const R1=["1-2","1-1-2","2-3-2","1-2-3-2"],R2=["1-2-3","3-2-3","1-3-2","2-4-2"],R3=["1-6-3-2","5-2-3","2-5-2-3","1-2-5-2"];
+const R4ALL=R1.concat(R2,R3);
+function buildBoxing(){
+ const steps=[];
+ steps.push({label:"Warm-up",sub:"Arm circles",secs:40,say:"Warm up. Big arm circles."});
+ steps.push({label:"Warm-up",sub:"Torso twists",secs:40,say:"Torso twists. Loosen up."});
+ steps.push({label:"Warm-up",sub:"Bounce on your toes",secs:40,say:"Bounce on your toes. Stay light."});
+ const rounds=[
+  {name:"Round 1 — The One-Two School",intro:"Round 1. The One-Two School. Hands up, chin down!",list:R1,next:"Next: Round 2, Hooks"},
+  {name:"Round 2 — Hooks",intro:"Round 2. Hooks. Turn those hips!",list:R2,next:"Next: Round 3, Upstairs Downstairs"},
+  {name:"Round 3 — Upstairs Downstairs",intro:"Round 3. Upstairs, downstairs. Head and body!",list:R3,next:"Next: the Championship Round"}];
+ rounds.forEach(r=>{
+  steps.push({label:r.name,sub:"Round begins",secs:5,say:r.intro});
+  for(let i=0;i<9;i++){const c=r.list[i%r.list.length];steps.push({label:r.name,sub:"Call: "+c,secs:20,say:comboWords(c)});}
+  steps.push({label:"Rest",sub:r.next,secs:60,say:"Rest. Shake it out. Breathe."});
+ });
+ steps.push({label:"Round 4 — Championship Round",sub:"Freestyle power",secs:5,say:"Championship round. Freestyle power. Leave it all in the ring!"});
+ for(let i=0;i<8;i++){const c=R4ALL[Math.floor(Math.random()*R4ALL.length)];steps.push({label:"Round 4 — Championship Round",sub:"Freestyle: "+c,secs:20,say:comboWords(c)});}
+ steps.push({label:"Round 4 — Championship Round",sub:"EMPTY THE TANK",secs:20,say:"Everything you've got! Final 20 seconds!"});
+ steps.push({label:"Abs Blast",sub:"4 × 30 seconds, no rest",secs:5,say:"Abs blast. 30 seconds each. No rest between."});
+ [["Crunches",30],["Leg Raises",30],["Russian Twists",30],["Plank",30]].forEach(a=>steps.push({label:"Abs Blast",sub:a[0],secs:a[1],say:a[0]+". Go!"}));
+ return steps;
+}
+const CORE=[["Plank",40],["Dead Bug",40],["Russian Twists",40],["Mountain Climbers",40],["Leg Raises",40],["Bicycle Crunches",40],["Side Plank — Left",40],["Side Plank — Right",40]];
+function buildCore(){
+ const steps=[{label:"Get ready",sub:"First up: Plank",secs:10,say:"Get ready. Core finisher. First up: plank."}];
+ CORE.forEach((c,i)=>{
+  const next=CORE[i+1];
+  steps.push({label:"Exercise "+(i+1)+" of 8",sub:c[0]+" — 40 seconds",secs:40,say:c[0]+". Go!"});
+  steps.push({label:"Rest",sub:next?("Next up: "+next[0]):"Last one done",secs:20,say:"Rest."});
+ });
+ return steps;
+}
+const MODULES={
+ dumbbell:{name:"Dumbbell Circuit",tag:"~29 min",desc:"29 exercises from your upper-body video. 45 seconds work, 15 seconds rest. Chest, back, arms, shoulders and abs.",build:buildDumbbell,done:"Dumbbell circuit complete. Guns loaded. Go rehydrate."},
+ boxing:{name:"Championship Rounds",tag:"~20 min",desc:"Shadow boxing, corner-coach style. Guided warm-up, four 3-minute rounds with called combos, and a 2-minute abs blast.",build:buildBoxing,done:"Championship rounds complete. You went the distance."},
+ core:{name:"Core Finisher",tag:"~8 min",desc:"8 exercises, 40 seconds on, 20 seconds off. Short, sharp, done.",build:buildCore,done:"Core finisher complete. Solid work."}
+};
+/* ---------- timer engine (real-clock sync) ---------- */
+let steps=[],stepIndex=0,remaining=0,total=0,interval=null,running=false,paused=false,started=false,stepEnd=0,wakeLock=null,currentModule=null;
+function totalFor(s){return s.reduce((a,x)=>a+x.secs,0);}
+function computeElapsed(){let e=0;for(let i=0;i<stepIndex;i++)e+=steps[i].secs;if(steps[stepIndex])e+=steps[stepIndex].secs-Math.max(0,remaining);return e;}
+async function keepAwake(on){
+ try{
+  if(on&&"wakeLock"in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null});}
+  else if(!on&&wakeLock){try{await wakeLock.release();}catch(e){}wakeLock=null;}
+ }catch(e){wakeLock=null;}
+}
+function announceStep(){
+ const s=steps[stepIndex];if(!s)return;
+ if(s.say)speak(s.say);
+ tone(s.label==="Rest"?520:760,.18);
+ $("phase").textContent=s.label;
+ $("stepText").textContent=s.sub||s.label;
+ $("stepCount").textContent="Stage "+(stepIndex+1)+" of "+steps.length;
+ updateTimer();
+}
+function updateTimer(){$("clock").textContent=fmt(remaining);$("timerProgress").style.width=Math.min(100,total?computeElapsed()/total*100:0)+"%";}
+function tick(){
+ if(!running||paused)return;
+ let guard=0;
+ while(guard++<80){
+  const r=(stepEnd-Date.now())/1000;
+  if(r>0){remaining=r;updateTimer();return;}
+  stepIndex++;
+  if(stepIndex>=steps.length){finishModule();return;}
+  stepEnd+=steps[stepIndex].secs*1000;
+  announceStep();
+ }
+}
+function beginModule(){
+ const m=MODULES[currentModule];if(!m)return;
+ steps=m.build();total=totalFor(steps);stepIndex=0;remaining=steps[0].secs;stepEnd=Date.now()+remaining*1000;
+ started=true;running=true;paused=false;
+ announceStep();keepAwake(true);
+ $("startBtn").textContent="Restart";$("pauseBtn").disabled=false;$("skipBtn").disabled=false;$("pauseBtn").textContent="Pause";
+ if(interval)clearInterval(interval);interval=setInterval(tick,500);
+}
+function startModule(){
+ if((running||paused)&&!confirm("Restart this workout from the beginning?"))return;
+ stopTimer();beginModule();
+}
+function stopTimer(){if(interval)clearInterval(interval);interval=null;running=false;paused=false;keepAwake(false);}
+function finishModule(){
+ stopTimer();
+ const m=MODULES[currentModule];
+ speak(m.done);tone(900,.4);
+ state.completed.push({module:currentModule,name:m.name,date:dateKey(),timestamp:Date.now(),minutes:Math.round(total/60)});
+ save();
+ $("phase").textContent="Workout complete";$("clock").textContent="00:00";
+ $("stepText").textContent=m.done;$("stepCount").textContent="Saved to your progress";
+ $("timerProgress").style.width="100%";$("startBtn").textContent="Start workout";$("pauseBtn").disabled=true;$("skipBtn").disabled=true;
+ renderProgress();renderStreak();
+}
+/* ---------- ui ---------- */
+function renderPicker(){
+ $("modulePicker").innerHTML=Object.keys(MODULES).map(k=>{
+  const m=MODULES[k];
+  return '<button class="modbtn'+(k===state.selectedModule?" sel":"")+'" data-m="'+k+'"><div class="row between"><span class="t">'+esc(m.name)+'</span><span class="pill crimson">'+m.tag+'</span></div><div class="d">'+esc(m.desc)+'</div></button>';
+ }).join("");
+ document.querySelectorAll(".modbtn").forEach(b=>b.addEventListener("click",()=>{state.selectedModule=b.dataset.m;save();renderPicker();loadModule();}));
+}
+function loadModule(){
+ currentModule=state.selectedModule;
+ const m=MODULES[currentModule];
+ $("workoutTitle").textContent=m.name;
+ $("workoutDuration").textContent=m.tag;
+ $("workoutSummary").textContent=m.desc;
+ const s0=m.build()[0];
+ $("phase").textContent="Ready when you are";$("clock").textContent=fmt(s0.secs);$("stepText").textContent=s0.sub||s0.label;
+ $("stepCount").textContent="Hit start when you're ready";
+ $("timerProgress").style.width="0%";$("startBtn").textContent="Start workout";$("pauseBtn").disabled=true;$("skipBtn").disabled=true;
+}
+function dayStreak(){
+ const days=new Set(state.completed.map(x=>x.date));
+ let s=0;const d=new Date();
+ if(!days.has(dateKey(d)))d.setDate(d.getDate()-1);
+ while(days.has(dateKey(d))){s++;d.setDate(d.getDate()-1);}
+ return s;
+}
+function renderStreak(){
+ const s=dayStreak();
+ $("streakCount").textContent=s;
+ $("streakSub").textContent=s===0?"Complete a workout to start your streak.":(s+" day"+(s===1?"":"s")+" in a row. Keep it burning.");
+ $("totalPill").textContent=state.completed.length+" session"+(state.completed.length===1?"":"s");
+ $("pstreakCount").textContent=s;
+}
+function renderProgress(){
+ $("doneCount").textContent=state.completed.length;
+ $("minCount").textContent=state.completed.reduce((a,x)=>a+(x.minutes||0),0);
+ $("historyList").innerHTML=state.completed.length?state.completed.slice().sort((a,b)=>b.timestamp-a.timestamp).map(x=>
+  '<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row between"><span><strong>'+esc(x.name)+'</strong><br><span class="muted">'+esc(x.date)+' · '+x.minutes+' min</span></span><span style="color:var(--gold);font-weight:800">Done</span></div></div>'
+ ).join(""):'Complete your first workout to see it here.';
+}
+function renderPlanLists(){
+ $("dumbbellList").innerHTML=DUMBBELL.map(e=>"<li>"+esc(e)+"</li>").join("");
+ $("coreList").innerHTML=CORE.map(c=>"<li>"+esc(c[0])+" — 40s on / 20s off</li>").join("");
+}
+function switchTab(tab){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===tab));}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+$("startBtn").addEventListener("click",startModule);
+$("pauseBtn").addEventListener("click",()=>{
+ if(!started)return;
+ if(!paused){tick();paused=true;running=false;if(interval)clearInterval(interval);interval=null;keepAwake(false);$("pauseBtn").textContent="Resume";$("phase").textContent="Paused";updateTimer();}
+ else{paused=false;running=true;stepEnd=Date.now()+Math.max(0,remaining)*1000;$("pauseBtn").textContent="Pause";interval=setInterval(tick,500);speak("Back to work.");keepAwake(true);}
+});
+$("skipBtn").addEventListener("click",()=>{
+ if(!started)return;
+ stepIndex++;
+ if(stepIndex>=steps.length){finishModule();return;}
+ remaining=steps[stepIndex].secs;stepEnd=Date.now()+remaining*1000;announceStep();
+});
+$("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="home-corner-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);});
+$("resetBtn").addEventListener("click",()=>{if(confirm("Reset all saved progress? This cannot be undone unless you exported a backup.")){state={completed:[],selectedModule:state.selectedModule};save();stopTimer();renderPicker();loadModule();renderProgress();renderStreak();}});
+renderPicker();loadModule();renderProgress();renderStreak();renderPlanLists();renderVoice();
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running&&!paused){tick();keepAwake(true);}});
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
