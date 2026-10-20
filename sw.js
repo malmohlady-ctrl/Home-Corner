@@ -1,5 +1,5 @@
 /* Home Corner service worker — cache-first offline support */
-const CACHE = "workout-v10";
+const CACHE = "workout-v11";
 const ASSETS = [
   "./",
   "index.html",
