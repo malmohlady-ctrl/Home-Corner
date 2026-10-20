@@ -1,5 +1,5 @@
 /* Home Corner service worker — cache-first offline support */
-const CACHE = "workout-v8";
+const CACHE = "workout-v10";
 const ASSETS = [
   "./",
   "index.html",
@@ -85,7 +85,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE && k.startsWith("workout-")).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
