@@ -1,9 +1,12 @@
 /* Home Corner service worker — cache-first offline support */
-const CACHE = "workout-v11";
+const CACHE = "workout-v12";
 const ASSETS = [
   "./",
   "index.html",
   "manifest.json",
+  "player.js",
+  "player.css",
+  "music/playlist.json",
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",
@@ -89,8 +92,57 @@ self.addEventListener("activate", (event) => {
     ).then(() => self.clients.claim())
   );
 });
+function rangeSlice(fullResponse, rangeHeader) {
+  return fullResponse.blob().then((blob) => {
+    const m = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader || "");
+    let start = 0;
+    let end = blob.size - 1;
+    if (m) {
+      if (m[1] === "" && m[2] !== "") {
+        start = Math.max(0, blob.size - parseInt(m[2], 10));
+      } else {
+        if (m[1] !== "") start = parseInt(m[1], 10);
+        if (m[2] !== "") end = Math.min(parseInt(m[2], 10), blob.size - 1);
+      }
+    }
+    if (start > end || start >= blob.size) {
+      return new Response(null, {
+        status: 416,
+        headers: { "Content-Range": "bytes */" + blob.size }
+      });
+    }
+    const part = blob.slice(start, end + 1);
+    return new Response(part, {
+      status: 206,
+      headers: {
+        "Content-Range": "bytes " + start + "-" + end + "/" + blob.size,
+        "Content-Length": String(part.size),
+        "Accept-Ranges": "bytes",
+        "Content-Type": "audio/mpeg"
+      }
+    });
+  });
+}
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.pathname.includes("/music/") && url.pathname.endsWith(".mp3")) {
+    event.respondWith(
+      caches.open(CACHE).then((cache) =>
+        cache.match(event.request, { ignoreSearch: true }).then((cached) => {
+          const range = event.request.headers.get("Range");
+          if (cached) {
+            return range ? rangeSlice(cached.clone(), range) : cached;
+          }
+          return fetch(url.href).then((res) => {
+            if (res && res.status === 200) cache.put(event.request, res.clone());
+            return range ? rangeSlice(res.clone(), range) : res;
+          });
+        })
+      )
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cached) => cached || fetch(event.request))
   );
