@@ -122,7 +122,7 @@ function dateKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* ---------- voice ---------- */
 const prefKey="basementbelt.prefs.v1";
-let prefs={rate:.95,spotify:"https://open.spotify.com/playlist/37i9dQZF1DX9oh43oAzkyx"};
+let prefs={rate:.95,spotify:"https://open.spotify.com/playlist/2oOPWpO9fqJUGhjunEAj6h"};
 try{const p=JSON.parse(localStorage.getItem(prefKey)||"null");if(p)prefs={...prefs,...p};}catch(e){}
 function savePrefs(){try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(e){}}
 function fallbackSpeak(msg){try{if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.rate=Number(prefs.rate)||.95;if(prefs.voiceURI){const v=speechSynthesis.getVoices().find(x=>x.voiceURI===prefs.voiceURI);if(v)u.voice=v;}speechSynthesis.speak(u);}}catch(e){}}
