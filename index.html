@@ -387,7 +387,7 @@ $("importFile").addEventListener("change",e=>{
 $("resetBtn").addEventListener("click",()=>{if(confirm("Reset all saved progress? This cannot be undone unless you exported a backup.")){state={completed:[],selectedModule:state.selectedModule};save();stopTimer();renderPicker();loadModule();renderProgress();renderStreak();}});
 /* ---------- init ---------- */
 renderPicker();loadModule();renderProgress();renderStreak();renderPlanLists();renderFightCard();renderVoice();
-if(window.AppMusic)AppMusic.init({mount:"musicMount",storageKey:"appmusic.homecorner",appName:"Home Corner"});
+if(window.AppMusic)AppMusic.init({mount:"musicMount",storageKey:"appmusic.homecorner",appName:"Home Corner",clientId:"6f9fc64b915e4576baa41ee26ca159ca",playlistId:"2oOPWpO9fqJUGhjunEAj6h"});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running&&!paused){tick();keepAwake(true);}});
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 </script>
