@@ -1,12 +1,11 @@
 /* Home Corner service worker — cache-first offline support */
-const CACHE = "workout-v13";
+const CACHE = "workout-v14";
 const ASSETS = [
   "./",
   "index.html",
   "manifest.json",
   "player.js",
   "player.css",
-  "music/playlist.json",
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",
