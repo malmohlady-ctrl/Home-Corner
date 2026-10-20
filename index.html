@@ -104,7 +104,7 @@ details summary{cursor:pointer;font-weight:700}
 </section>
 <section id="progress" class="panel">
 <div class="card"><div class="streakbanner"><div class="streaknum" id="streakCount">0</div><div><div style="font-weight:900;letter-spacing:-.01em">day streak</div><div class="small muted" id="streakSub">Complete a workout to start your streak.</div></div><span class="pill" id="totalPill" style="margin-left:auto">0 sessions</span></div></div>
-<div class="card"><h2>Your progress</h2><div class="statgrid"><div class="stat"><strong id="doneCount">0</strong><span>Sessions completed</span></div><div class="stat"><strong id="minCount">0</strong><span>Minutes trained</span></div><div class="stat"><strong id="pstreakCount">0</strong><span>Day streak</span></div></div><hr><div class="row between"><h3>Workout history</h3><button class="secondary small" id="exportBtn">Export data</button></div><div id="historyList" class="muted small">Complete your first workout to see it here.</div><hr><button class="danger full" id="resetBtn">Reset all progress</button><p class="small muted">Progress is saved on this device in this browser. Clearing browser data or switching devices may erase it. Export a backup occasionally.</p></div>
+<div class="card"><h2>Your progress</h2><div class="statgrid"><div class="stat"><strong id="doneCount">0</strong><span>Sessions completed</span></div><div class="stat"><strong id="minCount">0</strong><span>Minutes trained</span></div><div class="stat"><strong id="pstreakCount">0</strong><span>Day streak</span></div></div><hr><div class="row between"><h3>Workout history</h3><button class="secondary small" id="exportBtn">Export data</button></div><div id="historyList" class="muted small">Complete your first workout to see it here.</div><hr><button class="secondary full" id="importBtn" style="margin-bottom:8px">Restore from backup</button><input type="file" id="importFile" accept="application/json,.json" style="display:none"><button class="danger full" id="resetBtn">Reset all progress</button><p class="small muted">Progress is saved on this device in this browser. Clearing browser data or switching devices may erase it. Export a backup occasionally.</p></div>
 </section>
 </main>
 <nav class="navbar" aria-label="Main navigation">
@@ -247,7 +247,7 @@ function tick(){
 function beginModule(){
  const m=MODULES[currentModule];if(!m)return;
  steps=m.build();total=totalFor(steps);stepIndex=0;remaining=steps[0].secs;stepEnd=Date.now()+remaining*1000;
- started=true;running=true;paused=false;
+ started=true;running=true;paused=false;sessionFinished=false;
  announceStep();keepAwake(true);
  $("startBtn").textContent="Restart";$("pauseBtn").disabled=false;$("skipBtn").disabled=false;$("pauseBtn").textContent="Pause";
  if(interval)clearInterval(interval);interval=setInterval(tick,500);
@@ -257,11 +257,13 @@ function startModule(){
  stopTimer();beginModule();
 }
 function stopTimer(){if(interval)clearInterval(interval);interval=null;running=false;paused=false;keepAwake(false);}
+let sessionFinished=false;
 function finishModule(){
+ if(sessionFinished)return;sessionFinished=true;
  stopTimer();
  const m=MODULES[currentModule];
  speak(m.done);tone(900,.4);
- state.completed.push({module:currentModule,name:m.name,date:dateKey(),timestamp:Date.now(),minutes:Math.round(total/60)});
+ state.completed.push({module:currentModule,name:m.name,date:dateKey(),timestamp:Date.now(),minutes:Math.round(total/60),durationSec:Math.round(computeElapsed())});
  save();
  $("phase").textContent="Workout complete";$("clock").textContent="00:00";
  $("stepText").textContent=m.done;$("stepCount").textContent="Saved to your progress";
@@ -342,13 +344,31 @@ $("skipBtn").addEventListener("click",()=>{
  remaining=steps[stepIndex].secs;stepEnd=Date.now()+remaining*1000;announceStep();
 });
 $("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="home-corner-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);});
+$("importBtn").addEventListener("click",()=>$("importFile").click());
+$("importFile").addEventListener("change",e=>{
+ const f=e.target.files[0];e.target.value="";
+ if(!f)return;
+ const rd=new FileReader();
+ rd.onload=()=>{
+  try{
+   const data=JSON.parse(rd.result);
+   if(!data||!Array.isArray(data.completed))throw new Error("bad");
+   if(!confirm("Restore this backup? Your current progress ("+state.completed.length+" sessions) will be replaced by "+data.completed.length+" sessions from the backup file."))return;
+   stopTimer();
+   state={completed:data.completed,selectedModule:MODULES[data.selectedModule]?data.selectedModule:"dumbbell"};
+   save();renderPicker();loadModule();renderProgress();renderStreak();
+   alert("Backup restored.");
+  }catch(err){alert("That file isn't a valid Home Corner backup. Nothing was changed.");}
+ };
+ rd.readAsText(f);
+});
 $("resetBtn").addEventListener("click",()=>{if(confirm("Reset all saved progress? This cannot be undone unless you exported a backup.")){state={completed:[],selectedModule:state.selectedModule};save();stopTimer();renderPicker();loadModule();renderProgress();renderStreak();}});
 /* ---- Spotify in-app playback via PKCE (no server needed) ---- */
 const SPOTIFY_CLIENT_ID = "6f9fc64b915e4576baa41ee26ca159ca";
 const SPOTIFY_REDIRECT_URI = location.origin + location.pathname;
 const SPOTIFY_SCOPES = ["streaming","user-read-playback-state","user-modify-playback-state","user-read-currently-playing"].join(" ");
 const SPOTIFY_TOKEN_KEY = "basementbelt_spotify_tokens";
-let spotifyPlayer = null, spotifyDeviceId = null, spotifyReady = false, spotifyTrack = "", spotifyTrackName = "", spotifyTrackArtists = "", spotifyArtwork = "", spotifyPaused = true, spotifyTrackUri = "", spotifyPlaylistTracks = [], spotifyTracksLoading = false, spListOpen = false;
+let spotifyPlayer = null, spotifyDeviceId = null, spotifyReady = false, spotifyTrack = "", spotifyTrackName = "", spotifyTrackArtists = "", spotifyArtwork = "", spotifyPaused = true, spotifyTrackUri = "", spotifyPlaylistTracks = [], spotifyTracksLoading = false, spotifyTracksLoaded = false, spotifyTracksError = "", spListOpen = false;
 function escHtml(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function spotifySetupDone(){return SPOTIFY_CLIENT_ID && SPOTIFY_CLIENT_ID.indexOf("PASTE")!==0;}
 function spotifyTokens(){try{return JSON.parse(localStorage.getItem(SPOTIFY_TOKEN_KEY)||"null");}catch(e){return null;}}
@@ -439,18 +459,23 @@ function spotifyPlaylistId(){
  return m?{kind:m[1],id:m[2]}:null;
 }
 async function spotifyLoadPlaylist(){
- if(spotifyTracksLoading)return;spotifyTracksLoading=true;
- spotifyPlaylistTracks=[];
- const tok=await spotifyToken(),pl=spotifyPlaylistId();
- if(tok&&pl){
-  try{
+ if(spotifyTracksLoading||spotifyTracksLoaded)return;spotifyTracksLoading=true;
+ spotifyPlaylistTracks=[];spotifyTracksError="";
+ try{
+  const tok=await spotifyToken(),pl=spotifyPlaylistId();
+  if(!tok){spotifyTracksError="Couldn't load tracks — your Spotify sign-in needs attention. Disconnect and reconnect, or check your connection.";}
+  else if(!pl){spotifyTracksError="That playlist link looks wrong. Paste a Spotify playlist or album link below.";}
+  else{
    const ep=pl.kind==="album"?"albums":"playlists";
    const res=await fetch("https://api.spotify.com/v1/"+ep+"/"+pl.id+"/tracks?fields=items(track(name,artists(name),uri))&limit=50",{headers:{Authorization:"Bearer "+tok}});
-   const data=await res.json();
-   spotifyPlaylistTracks=(data.items||[]).map(function(i){return i.track;}).filter(Boolean).map(function(t){return{name:t.name,artists:t.artists.map(function(a){return a.name;}).join(", "),uri:t.uri};});
-  }catch(e){}
- }
- spotifyTracksLoading=false;renderSpotifyConnect();
+   if(!res.ok){spotifyTracksError="Spotify couldn't return those tracks (error "+res.status+"). Play and pause still work from the player above.";}
+   else{
+    const data=await res.json();
+    spotifyPlaylistTracks=(data.items||[]).map(function(i){return i.track;}).filter(Boolean).map(function(t){return{name:t.name,artists:t.artists.map(function(a){return a.name;}).join(", "),uri:t.uri};});
+   }
+  }
+ }catch(e){spotifyTracksError="Couldn't load tracks — check your connection and try again.";}
+ spotifyTracksLoading=false;spotifyTracksLoaded=true;renderSpotifyConnect();
 }
 async function spotifyPlayTrack(uri){
  const plUri=spotifyPlaylistUri();
@@ -458,7 +483,9 @@ async function spotifyPlayTrack(uri){
  else await spotifyApi("play","PUT",{uris:[uri]});
 }
 function renderTrackList(){
- if(!spotifyPlaylistTracks.length)return "";
+ if(spotifyTracksLoading)return '<div style="margin-top:8px;background:#161616;border-radius:14px;padding:14px"><p style="margin:0;font-size:13px;color:#9a9a9a">Loading tracks…</p></div>';
+ if(spotifyTracksError)return '<div style="margin-top:8px;background:#161616;border-radius:14px;padding:14px"><p style="margin:0 0 8px;font-size:13px;color:#e8b4b4">'+escHtml(spotifyTracksError)+'</p><button id="spRetry" type="button" style="background:#fff;color:#161616;border:0;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer">Try again</button></div>';
+ if(!spotifyPlaylistTracks.length)return '<div style="margin-top:8px;background:#161616;border-radius:14px;padding:14px"><p style="margin:0;font-size:13px;color:#9a9a9a">This playlist is empty.</p></div>';
  let h='<div id="spTrackList" style="margin-top:8px;max-height:240px;overflow-y:auto;background:#161616;border-radius:14px;padding:8px">';
  for(let i=0;i<spotifyPlaylistTracks.length;i++){
   const t=spotifyPlaylistTracks[i],active=t.uri===spotifyTrackUri;
@@ -468,7 +495,7 @@ function renderTrackList(){
  }
  return h+'</div>';
 }
-function spotifyDisconnect(){try{spotifyPlayer&&spotifyPlayer.disconnect();}catch(e){}spotifyPlayer=null;spotifyDeviceId=null;spotifyReady=false;spotifyTrack="";spotifyTrackName="";spotifyTrackArtists="";spotifyArtwork="";spotifyPaused=true;spotifyTrackUri="";spotifyPlaylistTracks=[];spotifyTracksLoading=false;spListOpen=false;spotifyClearTokens();renderSpotifyConnect();}
+function spotifyDisconnect(){try{spotifyPlayer&&spotifyPlayer.disconnect();}catch(e){}spotifyPlayer=null;spotifyDeviceId=null;spotifyReady=false;spotifyTrack="";spotifyTrackName="";spotifyTrackArtists="";spotifyArtwork="";spotifyPaused=true;spotifyTrackUri="";spotifyPlaylistTracks=[];spotifyTracksLoading=false;spotifyTracksLoaded=false;spotifyTracksError="";spListOpen=false;spotifyClearTokens();renderSpotifyConnect();}
 function renderSpotifyConnect(){
  const box=$("spotifyConnect");if(!box)return;
  if(!spotifySetupDone()){box.innerHTML="";return;}
@@ -478,7 +505,7 @@ function renderSpotifyConnect(){
    +'<p class="small muted" style="margin:8px 0 0">First, add this exact URL as a Redirect URI in your Spotify developer dashboard:<br><code style="color:var(--gold);word-break:break-all">'+escHtml(SPOTIFY_REDIRECT_URI)+'</code></p>' ;
   $("spConnectBtn").addEventListener("click",spotifyLogin);return;
  }
- if(!spotifyPlaylistTracks.length&&spotifyReady)spotifyLoadPlaylist();
+ if(spotifyReady&&!spotifyTracksLoaded)spotifyLoadPlaylist();
  let sub="";
  if(!spotifyReady)sub='<p class="small muted" style="margin:0 0 8px">Connecting player…</p>';
  let art;
@@ -502,6 +529,7 @@ function renderSpotifyConnect(){
  const rows=box.querySelectorAll(".sp-track");
  for(let i=0;i<rows.length;i++)(function(el){el.addEventListener("click",function(){spotifyPlayTrack(el.getAttribute("data-uri"));});})(rows[i]);
  $("spDisc").addEventListener("click",function(e){e.preventDefault();spotifyDisconnect();});
+ const rb=$("spRetry");if(rb)rb.addEventListener("click",function(){spotifyTracksLoaded=false;renderSpotifyConnect();});
 }
 function spotifyLink(raw){
  raw=(raw||"").trim();
@@ -522,7 +550,7 @@ $("spotifySave").addEventListener("click",()=>{
  if(/spotify\.link\//i.test(v)){$("musicMsg").textContent="That's a short link. Open it in Chrome, then copy the address from the address bar and paste that here.";return}
  const u=spotifyLink(v);
  if(!u){$("musicMsg").textContent="That doesn't look like a Spotify link. In Spotify, tap Share, then Copy link.";return}
- prefs.spotify=u;savePrefs();renderMusic();spotifyPlaylistTracks=[];spotifyLoadPlaylist();$("spotifyInput").value="";$("musicMsg").textContent="Playlist saved on this device.";
+ prefs.spotify=u;savePrefs();renderMusic();spotifyPlaylistTracks=[];spotifyTracksLoaded=false;spotifyTracksError="";spotifyLoadPlaylist();$("spotifyInput").value="";$("musicMsg").textContent="Playlist saved on this device.";
 });
 /* ---------- init ---------- */
 renderPicker();loadModule();renderProgress();renderStreak();renderPlanLists();renderFightCard();renderVoice();
