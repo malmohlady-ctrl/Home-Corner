@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141b2e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Home Corner — Home Workout</title>
+<style>
+:root{--bg:#141b2e;--card:#1b2438;--ink:#f2ead8;--muted:#9d9484;--primary:#d4a72c;--primaryT:#e8c96a;--primary2:#2e2a1a;--gold:#e8c96a;--gold2:#2e2a1a;--line:#2b3552}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#0f1526;color:var(--ink);padding:18px 18px 14px;border-bottom:2px solid var(--primary)}
+.wrap{max-width:760px;margin:auto}header .eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:700}
+h1{font-size:32px;line-height:1.05;margin:8px 0;font-weight:900;letter-spacing:-.03em}h1 .accent{color:var(--primaryT)}header p{margin:8px 0 0;color:var(--muted)}
+.navbar{position:fixed;left:0;right:0;bottom:0;background:#0f1526;border-top:2px solid var(--primary);display:flex;padding:8px 6px calc(10px + env(safe-area-inset-bottom));z-index:40;max-width:760px;margin:auto}
+.navbar button{flex:1;border:0;background:none;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:-.01em;padding:8px 2px;cursor:pointer;border-radius:12px}
+.navbar button .dot{display:block;width:6px;height:6px;border-radius:50%;background:transparent;margin:3px auto 0}
+.navbar button.on{color:var(--primaryT)}
+.navbar button.on .dot{background:var(--primary)}
+main{padding:14px 14px 110px;max-width:760px;margin:auto}.panel{display:none}.panel.active{display:block}
+.page{font-size:24px;font-weight:900;letter-spacing:-.02em;margin:2px 0 4px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.rrow{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:13px 15px;margin-bottom:10px;cursor:pointer}
+.rrow .rt{display:flex;justify-content:space-between;align-items:center;font-weight:900;letter-spacing:-.01em;font-size:15px}
+.rrow .steps{display:none;margin-top:8px;border-top:1px solid var(--line);padding-top:8px;font-size:13.5px;color:var(--muted)}
+.rrow.open .steps{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:13px;box-shadow:0 2px 8px #00000066}
+h2{font-size:20px;margin:0 0 12px;font-weight:900;letter-spacing:-.02em}h3{font-size:16px;margin:0 0 7px}.muted{color:var(--muted)}.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center}.row>*{min-width:0}.between{justify-content:space-between}
+select,button,input{font:inherit}
+button.primary,button.secondary,button.danger{border:0;border-radius:12px;padding:13px 15px;font-weight:900;letter-spacing:-.01em;cursor:pointer}
+button.primary{background:var(--primary);color:#141b2e}button.secondary{background:var(--primary2);color:var(--primaryT)}button.danger{background:#2a1414;color:var(--primaryT)}
+button:disabled{opacity:.45;cursor:not-allowed}.full{width:100%}
+.pills{display:flex;gap:8px;flex-wrap:wrap}.pill{border-radius:999px;padding:6px 10px;background:var(--gold2);color:var(--gold);font-size:12px;font-weight:700}
+.pill.crimson{background:var(--primary2);color:var(--primaryT)}
+.progress{height:9px;border-radius:20px;background:#262125;overflow:hidden}.progress span{display:block;height:100%;width:0;background:var(--primary);transition:width .2s}
+.timer{text-align:center;padding:18px 0 12px}.phase{font-weight:900;text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--primaryT)}.clock{font-size:clamp(56px,15vw,82px);letter-spacing:-.05em;line-height:1.1;font-variant-numeric:tabular-nums;font-weight:900;margin:8px 0}.steptext{font-size:17px;font-weight:900;letter-spacing:-.01em}.quote{border-left:4px solid var(--gold);padding:10px 13px;background:var(--gold2);border-radius:0 10px 10px 0;color:#f0c778}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#211d20;padding:12px;border-radius:12px}.stat strong{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}
+.modbtn{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--ink)}
+.modbtn.sel{border:2px solid var(--primary);padding:13px}
+.modbtn .t{font-weight:900;letter-spacing:-.02em;font-size:17px}.modbtn .d{font-size:13px;color:var(--muted);margin-top:4px}
+.exlist{margin:8px 0 0;padding-left:20px;font-size:14px;color:var(--muted)}.exlist li{margin:3px 0}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.legend div{background:#211d20;border:1px solid var(--line);border-radius:10px;padding:9px 6px;text-align:center}
+.legend b{display:block;font-size:19px;color:var(--gold)}.legend span{font-size:11px;color:var(--muted)}
+footer{padding:4px 18px 28px;text-align:center;color:var(--muted);font-size:12px;max-width:760px;margin:auto}
+hr{border:0;border-top:1px solid var(--line);margin:15px 0}
+input[type=url]{flex:1;background:#211d20;border:1px solid var(--line);border-radius:12px;padding:13px 12px;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--primary)}
+details summary{cursor:pointer;font-weight:700}
+.streakbanner{display:flex;align-items:center;gap:12px}
+.streaknum{font-size:38px;font-weight:800;color:var(--gold);line-height:1}
+@media(min-width:600px){main{padding:18px}.card{padding:20px}.timer{padding:20px 0}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Home workout · No gym required</div><h1>HOME CORNER</h1></div></header>
+<main>
+<section id="train" class="panel active">
+<div class="card"><h1 class="page">Train</h1><p class="sub">Your corner is ready. Pick a workout.</p><div id="modulePicker"></div></div>
+<div class="card">
+<div class="row between"><div><div class="small muted">UP NEXT</div><h2 id="workoutTitle">Dumbbell Circuit</h2></div><span class="pill crimson" id="workoutDuration">~29 min</span></div>
+<p id="workoutSummary" class="muted"></p>
+<div class="timer">
+<div class="phase" id="phase">Ready when you are</div><div class="clock" id="clock">00:00</div><div class="steptext" id="stepText">Pick a workout and hit start</div>
+<div class="small muted" id="stepCount" style="margin-top:7px"></div>
+</div>
+<div class="progress"><span id="timerProgress"></span></div>
+<div class="row" style="margin-top:15px"><button class="primary" id="startBtn" style="flex:1">Start workout</button><button class="secondary" id="pauseBtn" disabled>Pause</button><button class="secondary" id="skipBtn" disabled>Skip</button></div>
+<p class="small muted" style="margin-bottom:0">Voice cues use your phone's sound. The screen stays awake during a workout. If you lock your phone, cues may pause, but the timer catches up to the real time when you come back.</p>
+</div>
+<div class="card"><details><summary>Voice settings</summary>
+<div style="margin-top:10px"><label for="voiceRate" class="small" style="font-weight:700">Speed: <span id="voiceRateLabel">0.95</span>×</label><input id="voiceRate" type="range" min="0.7" max="1.3" step="0.05" value="0.95"></div>
+<div style="margin-top:10px"><label for="voiceSel" class="small" style="font-weight:700">Coach voice</label><select id="voiceSel" style="width:100%;margin-top:6px;padding:10px;border-radius:10px;font:inherit"></select><p class="small muted" style="margin:6px 0 0">Pick a voice that sounds like a cornerman. Saved for this app only.</p></div>
+<div class="row" style="margin-top:10px"><button class="secondary" id="voiceTest">Test voice</button></div>
+<p class="small muted" style="margin-bottom:0">Pre-recorded cornerman voice. Speed applies to the clips. The voice picker below is the backup, used only if a clip can't play.</p>
+</details></div>
+<div class="card"><details><summary>Full exercise lists</summary>
+<h3 style="margin-top:10px">Dumbbell Circuit</h3><ol class="exlist" id="dumbbellList"></ol>
+<h3 style="margin-top:12px">Core Finisher</h3><ol class="exlist" id="coreList"></ol>
+</details></div>
+</section>
+<section id="rounds" class="panel">
+<h1 class="page">Championship Rounds</h1>
+<p class="sub">The full fight card — tap a round to expand.</p>
+<div id="fightCard"></div>
+<div class="card"><div class="small" style="font-weight:900;letter-spacing:.06em">COMBO LEGEND</div>
+<div class="legend">
+<div><b>1</b><span>Jab</span></div><div><b>2</b><span>Cross</span></div><div><b>3</b><span>Lead Hook</span></div>
+<div><b>4</b><span>Rear Hook</span></div><div><b>5</b><span>Lead Uppercut</span></div><div><b>6</b><span>Rear Uppercut</span></div>
+</div></div>
+</section>
+<section id="music" class="panel">
+<h1 class="page">Music</h1>
+<p class="sub">Beast Mode Hip-Hop · Spotify</p>
+<div id="spotifyConnect" style="margin-bottom:10px"></div>
+<div id="musicEmbed" style="display:none"></div>
+<div class="card"><details><summary class="small">Change playlist</summary>
+<div class="row" style="margin-top:9px"><input id="spotifyInput" type="url" placeholder="Paste a Spotify playlist link" aria-label="Spotify playlist link" autocomplete="off"><button class="secondary" id="spotifySave">Save</button></div>
+<p class="small muted" id="musicMsg" style="margin-bottom:0">In Spotify, tap Share, then Copy link, and paste it here. The playlist appears in the player above.</p>
+</details></div>
+</section>
+<section id="progress" class="panel">
+<div class="card"><div class="streakbanner"><div class="streaknum" id="streakCount">0</div><div><div style="font-weight:900;letter-spacing:-.01em">day streak</div><div class="small muted" id="streakSub">Complete a workout to start your streak.</div></div><span class="pill" id="totalPill" style="margin-left:auto">0 sessions</span></div></div>
+<div class="card"><h2>Your progress</h2><div class="statgrid"><div class="stat"><strong id="doneCount">0</strong><span>Sessions completed</span></div><div class="stat"><strong id="minCount">0</strong><span>Minutes trained</span></div><div class="stat"><strong id="pstreakCount">0</strong><span>Day streak</span></div></div><hr><div class="row between"><h3>Workout history</h3><button class="secondary small" id="exportBtn">Export data</button></div><div id="historyList" class="muted small">Complete your first workout to see it here.</div><hr><button class="danger full" id="resetBtn">Reset all progress</button><p class="small muted">Progress is saved on this device in this browser. Clearing browser data or switching devices may erase it. Export a backup occasionally.</p></div>
+</section>
+</main>
+<nav class="navbar" aria-label="Main navigation">
+<button class="on" data-tab="train">Train<span class="dot"></span></button><button data-tab="rounds">Rounds<span class="dot"></span></button><button data-tab="music">Music<span class="dot"></span></button><button data-tab="progress">Progress<span class="dot"></span></button>
+</nav>
+<footer>Free, self-contained home workout tool · No account, subscription or data sent to a server.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const key="basementbelt.v1";
+let state={completed:[],selectedModule:"dumbbell"};
+try{const s=JSON.parse(localStorage.getItem(key)||"null");if(s)state={...state,...s};}catch(e){}
+function save(){try{localStorage.setItem(key,JSON.stringify(state));}catch(e){}}
+function fmt(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function dateKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* ---------- voice ---------- */
+const prefKey="basementbelt.prefs.v1";
+let prefs={rate:.95,spotify:"https://open.spotify.com/playlist/37i9dQZF1DX9oh43oAzkyx"};
+try{const p=JSON.parse(localStorage.getItem(prefKey)||"null");if(p)prefs={...prefs,...p};}catch(e){}
+function savePrefs(){try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(e){}}
+function fallbackSpeak(msg){try{if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.rate=Number(prefs.rate)||.95;if(prefs.voiceURI){const v=speechSynthesis.getVoices().find(x=>x.voiceURI===prefs.voiceURI);if(v)u.voice=v;}speechSynthesis.speak(u);}}catch(e){}}
+/* Pre-recorded cornerman clips (coach/). Falls back to phone TTS if a clip can't play. */
+const CLIPS={
+ "Back to work.":"coach/back-to-work.mp3",
+ "Dumbbell circuit complete. Guns loaded. Go rehydrate.":"coach/done-dumbbell.mp3",
+ "Championship rounds complete. You went the distance.":"coach/done-boxing.mp3",
+ "Core finisher complete. Solid work.":"coach/done-core.mp3"
+};
+function playClip(f,msg){try{const a=new Audio(f);a.preload="auto";a.playbackRate=Number(prefs.rate)||.95;const p=a.play();if(p&&p.catch)p.catch(()=>fallbackSpeak(msg));}catch(e){fallbackSpeak(msg)}}
+function speak(msg){const f=CLIPS[msg];if(!f){fallbackSpeak(msg);return;}playClip(f,msg);}
+function speakStep(s){if(s.clip){playClip(s.clip,s.say||"");}else if(s.say){fallbackSpeak(s.say);}}
+function tone(freq,duration){freq=freq||700;duration=duration||.18;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=new C();const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=freq;g.gain.value=.07;o.connect(g);g.connect(ctx.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);o.stop(ctx.currentTime+duration);setTimeout(()=>ctx.close(),duration*1000+100);}catch(e){}}
+function renderVoice(){$("voiceRate").value=prefs.rate;$("voiceRateLabel").textContent=(Number(prefs.rate)||.95).toFixed(2);}
+$("voiceRate").addEventListener("input",e=>{prefs.rate=+e.target.value;$("voiceRateLabel").textContent=prefs.rate.toFixed(2);savePrefs();});
+$("voiceTest").addEventListener("click",()=>speak("This is your corner coach. Let's work."));
+function loadVoiceOptions(){
+ const sel=$("voiceSel");if(!sel)return;
+ let vs=[];try{vs=speechSynthesis.getVoices()||[];}catch(e){}
+ vs=vs.filter(v=>v.lang&&v.lang.toLowerCase().indexOf("en")===0);
+ sel.innerHTML='<option value="">Phone default</option>'+vs.map(v=>'<option value="'+v.voiceURI+'">'+v.name+'</option>').join("");
+ if(prefs.voiceURI)sel.value=prefs.voiceURI;
+}
+try{loadVoiceOptions();speechSynthesis.onvoiceschanged=loadVoiceOptions;}catch(e){}
+$("voiceSel").addEventListener("change",e=>{prefs.voiceURI=e.target.value||"";savePrefs();});
+/* ---------- workout content ---------- */
+const DUMBBELL=[
+"3X Hammer Curl + 3X Press","Bent Over Back Rows","Renegade Row","Close Grip to Rotational ISO Chest Press",
+"Kneeling Front Raise","Kneeling Inward Curls","L-Sit Leg Raise","Alt In and Out","Gorilla Rows",
+"Front to Side Raise (Right)","Front to Side Raise (Left)","Good Morning","Alt Upright Rows","Chest Press + Opener",
+"ISO to Double Chest Fly","Triceps to Tate Press","Kneeling Curl to Press to Extension","Pullover to Reverse Crunch",
+"Sit-Up to DB Tap","Push-Up to Ranger to Curls","Bent Over Twist Row (Right)","Bent Over Twist Row (Left)",
+"Single to Double Triceps Kickback","3X Twist Curl + Hold","Weighted Crunches","Skull Crusher + Flutters",
+"Concentration Curl (Right)","Concentration Curl (Left)","Decline Reverse Press"];
+function sayName(n){return n.replace(/\+/g," plus ").replace(/3X/g,"3 X").replace(/\(Right\)/g,"right").replace(/\(Left\)/g,"left");}
+function buildDumbbell(){
+ const steps=[{label:"Get ready",sub:"First up: "+DUMBBELL[0],secs:10,say:"Get ready. First up: "+sayName(DUMBBELL[0]),clip:"coach/get-ready.mp3"}];
+ DUMBBELL.forEach((ex,i)=>{
+  const next=DUMBBELL[i+1];
+  const n=String(i+1).padStart(2,"0");
+  steps.push({label:"Exercise "+(i+1)+" of "+DUMBBELL.length,sub:ex,secs:45,say:"Exercise "+(i+1)+". "+sayName(ex)+". Go!",clip:"coach/ex-"+n+".mp3"});
+  steps.push({label:"Rest",sub:next?("Next up: "+next):"Nearly there",secs:15,say:"Rest.",clip:"coach/rest.mp3"});
+ });
+ return steps;
+}
+const NUMW={1:"One",2:"Two",3:"Three",4:"Four",5:"Five",6:"Six"};
+function comboWords(c){return c.split("-").map(n=>NUMW[n]||n).join(", ")+"!";}
+const R1=["1-2","1-1-2","2-3-2","1-2-3-2"],R2=["1-2-3","3-2-3","1-3-2","2-4-2"],R3=["1-6-3-2","5-2-3","2-5-2-3","1-2-5-2"];
+const R4ALL=R1.concat(R2,R3);
+function comboClip(c){return "coach/combo-"+c+".mp3";}
+function buildBoxing(){
+ const steps=[];
+ steps.push({label:"Warm-up",sub:"Arm circles",secs:40,say:"Warm up. Big arm circles.",clip:"coach/warm-arms.mp3"});
+ steps.push({label:"Warm-up",sub:"Torso twists",secs:40,say:"Torso twists. Loosen up.",clip:"coach/warm-torso.mp3"});
+ steps.push({label:"Warm-up",sub:"Bounce on your toes",secs:40,say:"Bounce on your toes. Stay light.",clip:"coach/warm-bounce.mp3"});
+ const rounds=[
+  {name:"Round 1 — The One-Two School",intro:"Round 1. The One-Two School. Hands up, chin down!",clip:"coach/round1-intro.mp3",list:R1,next:"Next: Round 2, Hooks"},
+  {name:"Round 2 — Hooks",intro:"Round 2. Hooks. Turn those hips!",clip:"coach/round2-intro.mp3",list:R2,next:"Next: Round 3, Upstairs Downstairs"},
+  {name:"Round 3 — Upstairs Downstairs",intro:"Round 3. Upstairs, downstairs. Head and body!",clip:"coach/round3-intro.mp3",list:R3,next:"Next: the Championship Round"}];
+ rounds.forEach(r=>{
+  steps.push({label:r.name,sub:"Round begins",secs:5,say:r.intro,clip:r.clip});
+  for(let i=0;i<9;i++){const c=r.list[i%r.list.length];steps.push({label:r.name,sub:"Call: "+c,secs:20,say:comboWords(c),clip:comboClip(c)});}
+  steps.push({label:"Rest",sub:r.next,secs:60,say:"Rest. Shake it out. Breathe.",clip:"coach/rest-shake.mp3"});
+ });
+ steps.push({label:"Round 4 — Championship Round",sub:"Freestyle power",secs:5,say:"Championship round. Freestyle power. Leave it all in the ring!",clip:"coach/round4-intro.mp3"});
+ for(let i=0;i<8;i++){const c=R4ALL[Math.floor(Math.random()*R4ALL.length)];steps.push({label:"Round 4 — Championship Round",sub:"Freestyle: "+c,secs:20,say:comboWords(c),clip:comboClip(c)});}
+ steps.push({label:"Round 4 — Championship Round",sub:"EMPTY THE TANK",secs:20,say:"Everything you've got! Final 20 seconds!",clip:"coach/empty-tank.mp3"});
+ steps.push({label:"Abs Blast",sub:"4 × 30 seconds, no rest",secs:5,say:"Abs blast. 30 seconds each. No rest between.",clip:"coach/abs-intro.mp3"});
+ const ABSCLIP={"Crunches":"coach/abs-crunches.mp3","Leg Raises":"coach/abs-leg-raises.mp3","Russian Twists":"coach/abs-russian-twists.mp3","Plank":"coach/abs-plank.mp3"};
+ [["Crunches",30],["Leg Raises",30],["Russian Twists",30],["Plank",30]].forEach(a=>steps.push({label:"Abs Blast",sub:a[0],secs:a[1],say:a[0]+". Go!",clip:ABSCLIP[a[0]]}));
+ return steps;
+}
+const CORE=[["Plank",40],["Dead Bug",40],["Russian Twists",40],["Mountain Climbers",40],["Leg Raises",40],["Bicycle Crunches",40],["Side Plank — Left",40],["Side Plank — Right",40]];
+function buildCore(){
+ const steps=[{label:"Get ready",sub:"First up: Plank",secs:10,say:"Get ready. Core finisher. First up: plank.",clip:"coach/core-ready.mp3"}];
+ const CORECLIP={"Plank":"coach/abs-plank.mp3","Dead Bug":"coach/core-dead-bug.mp3","Russian Twists":"coach/abs-russian-twists.mp3","Mountain Climbers":"coach/core-climbers.mp3","Leg Raises":"coach/abs-leg-raises.mp3","Bicycle Crunches":"coach/core-bicycle.mp3","Side Plank — Left":"coach/core-side-left.mp3","Side Plank — Right":"coach/core-side-right.mp3"};
+ CORE.forEach((c,i)=>{
+  const next=CORE[i+1];
+  steps.push({label:"Exercise "+(i+1)+" of 8",sub:c[0]+" — 40 seconds",secs:40,say:c[0]+". Go!",clip:CORECLIP[c[0]]});
+  steps.push({label:"Rest",sub:next?("Next up: "+next[0]):"Last one done",secs:20,say:"Rest.",clip:"coach/rest.mp3"});
+ });
+ return steps;
+}
+const MODULES={
+ dumbbell:{name:"Dumbbell Circuit",tag:"~29 min",desc:"29 exercises from your upper-body video. 45 seconds work, 15 seconds rest. Chest, back, arms, shoulders and abs.",build:buildDumbbell,done:"Dumbbell circuit complete. Guns loaded. Go rehydrate."},
+ boxing:{name:"Championship Rounds",tag:"~20 min",desc:"Shadow boxing, corner-coach style. Guided warm-up, four 3-minute rounds with called combos, and a 2-minute abs blast.",build:buildBoxing,done:"Championship rounds complete. You went the distance."},
+ core:{name:"Core Finisher",tag:"~8 min",desc:"8 exercises, 40 seconds on, 20 seconds off. Short, sharp, done.",build:buildCore,done:"Core finisher complete. Solid work."}
+};
+/* ---------- timer engine (real-clock sync) ---------- */
+let steps=[],stepIndex=0,remaining=0,total=0,interval=null,running=false,paused=false,started=false,stepEnd=0,wakeLock=null,currentModule=null;
+function totalFor(s){return s.reduce((a,x)=>a+x.secs,0);}
+function computeElapsed(){let e=0;for(let i=0;i<stepIndex;i++)e+=steps[i].secs;if(steps[stepIndex])e+=steps[stepIndex].secs-Math.max(0,remaining);return e;}
+async function keepAwake(on){
+ try{
+  if(on&&"wakeLock"in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null});}
+  else if(!on&&wakeLock){try{await wakeLock.release();}catch(e){}wakeLock=null;}
+ }catch(e){wakeLock=null;}
+}
+function announceStep(){
+ const s=steps[stepIndex];if(!s)return;
+ if(s.clip||s.say)speakStep(s);
+ tone(s.label==="Rest"?520:760,.18);
+ $("phase").textContent=s.label;
+ $("stepText").textContent=s.sub||s.label;
+ $("stepCount").textContent="Stage "+(stepIndex+1)+" of "+steps.length;
+ updateTimer();
+}
+function updateTimer(){$("clock").textContent=fmt(remaining);$("timerProgress").style.width=Math.min(100,total?computeElapsed()/total*100:0)+"%";}
+function tick(){
+ if(!running||paused)return;
+ let guard=0;
+ while(guard++<80){
+  const r=(stepEnd-Date.now())/1000;
+  if(r>0){remaining=r;updateTimer();return;}
+  stepIndex++;
+  if(stepIndex>=steps.length){finishModule();return;}
+  stepEnd+=steps[stepIndex].secs*1000;
+  announceStep();
+ }
+}
+function beginModule(){
+ const m=MODULES[currentModule];if(!m)return;
+ steps=m.build();total=totalFor(steps);stepIndex=0;remaining=steps[0].secs;stepEnd=Date.now()+remaining*1000;
+ started=true;running=true;paused=false;
+ announceStep();keepAwake(true);
+ $("startBtn").textContent="Restart";$("pauseBtn").disabled=false;$("skipBtn").disabled=false;$("pauseBtn").textContent="Pause";
+ if(interval)clearInterval(interval);interval=setInterval(tick,500);
+}
+function startModule(){
+ if((running||paused)&&!confirm("Restart this workout from the beginning?"))return;
+ stopTimer();beginModule();
+}
+function stopTimer(){if(interval)clearInterval(interval);interval=null;running=false;paused=false;keepAwake(false);}
+function finishModule(){
+ stopTimer();
+ const m=MODULES[currentModule];
+ speak(m.done);tone(900,.4);
+ state.completed.push({module:currentModule,name:m.name,date:dateKey(),timestamp:Date.now(),minutes:Math.round(total/60)});
+ save();
+ $("phase").textContent="Workout complete";$("clock").textContent="00:00";
+ $("stepText").textContent=m.done;$("stepCount").textContent="Saved to your progress";
+ $("timerProgress").style.width="100%";$("startBtn").textContent="Start workout";$("pauseBtn").disabled=true;$("skipBtn").disabled=true;
+ renderProgress();renderStreak();
+}
+/* ---------- ui ---------- */
+function renderPicker(){
+ $("modulePicker").innerHTML=Object.keys(MODULES).map(k=>{
+  const m=MODULES[k];
+  return '<button class="modbtn'+(k===state.selectedModule?" sel":"")+'" data-m="'+k+'"><div class="row between"><span class="t">'+esc(m.name)+'</span><span class="pill crimson">'+m.tag+'</span></div><div class="d">'+esc(m.desc)+'</div></button>';
+ }).join("");
+ document.querySelectorAll(".modbtn").forEach(b=>b.addEventListener("click",()=>{state.selectedModule=b.dataset.m;save();renderPicker();loadModule();}));
+}
+function loadModule(){
+ currentModule=state.selectedModule;
+ const m=MODULES[currentModule];
+ $("workoutTitle").textContent=m.name;
+ $("workoutDuration").textContent=m.tag;
+ $("workoutSummary").textContent=m.desc;
+ const s0=m.build()[0];
+ $("phase").textContent="Ready when you are";$("clock").textContent=fmt(s0.secs);$("stepText").textContent=s0.sub||s0.label;
+ $("stepCount").textContent="Hit start when you're ready";
+ $("timerProgress").style.width="0%";$("startBtn").textContent="Start workout";$("pauseBtn").disabled=true;$("skipBtn").disabled=true;
+}
+function dayStreak(){
+ const days=new Set(state.completed.map(x=>x.date));
+ let s=0;const d=new Date();
+ if(!days.has(dateKey(d)))d.setDate(d.getDate()-1);
+ while(days.has(dateKey(d))){s++;d.setDate(d.getDate()-1);}
+ return s;
+}
+function renderStreak(){
+ const s=dayStreak();
+ $("streakCount").textContent=s;
+ $("streakSub").textContent=s===0?"Complete a workout to start your streak.":(s+" day"+(s===1?"":"s")+" in a row. Keep it burning.");
+ $("totalPill").textContent=state.completed.length+" session"+(state.completed.length===1?"":"s");
+ $("pstreakCount").textContent=s;
+}
+function renderProgress(){
+ $("doneCount").textContent=state.completed.length;
+ $("minCount").textContent=state.completed.reduce((a,x)=>a+(x.minutes||0),0);
+ $("historyList").innerHTML=state.completed.length?state.completed.slice().sort((a,b)=>b.timestamp-a.timestamp).map(x=>
+  '<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row between"><span><strong>'+esc(x.name)+'</strong><br><span class="muted">'+esc(x.date)+' · '+x.minutes+' min</span></span><span style="color:var(--gold);font-weight:800">Done</span></div></div>'
+ ).join(""):'Complete your first workout to see it here.';
+}
+const FIGHT_CARD=[
+ {t:"Warm-up",dur:"2:00",d:"Arm circles · torso twists · bounce on your toes"},
+ {t:"Round 1 — The One-Two School",dur:"3:00",d:"1-2 · 1-1-2 · 2-3-2 · 1-2-3-2"},
+ {t:"Rest",dur:"1:00",d:"Shake it out. Breathe."},
+ {t:"Round 2 — Hooks",dur:"3:00",d:"1-2-3 · 3-2-3 · 1-3-2 · 2-4-2"},
+ {t:"Rest",dur:"1:00",d:"Shake it out. Breathe."},
+ {t:"Round 3 — Upstairs Downstairs",dur:"3:00",d:"1-6-3-2 · 5-2-3 · 2-5-2-3"},
+ {t:"Rest",dur:"1:00",d:"Shake it out. Breathe."},
+ {t:"Round 4 — Championship Round",dur:"3:00",d:"Freestyle power · empty the tank · everything you've got!"},
+ {t:"Abs Blast",dur:"2:00",d:"Crunches · leg raises · Russian twists · plank — 30 seconds each, no rest"}
+];
+function renderPlanLists(){
+ $("dumbbellList").innerHTML=DUMBBELL.map(e=>"<li>"+esc(e)+"</li>").join("");
+ $("coreList").innerHTML=CORE.map(c=>"<li>"+esc(c[0])+" — 40s on / 20s off</li>").join("");
+}
+function renderFightCard(){
+ $("fightCard").innerHTML=FIGHT_CARD.map(r=>'<div class="rrow"><div class="rt"><span>'+esc(r.t)+'</span><span class="pill crimson">'+r.dur+'</span></div><div class="steps">'+esc(r.d)+'</div></div>').join("");
+ document.querySelectorAll(".rrow").forEach(r=>r.addEventListener("click",()=>r.classList.toggle("open")));
+}
+function switchTab(tab){document.querySelectorAll(".navbar button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===tab));window.scrollTo(0,0);}
+document.querySelectorAll(".navbar button").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+$("startBtn").addEventListener("click",startModule);
+$("pauseBtn").addEventListener("click",()=>{
+ if(!started)return;
+ if(!paused){tick();paused=true;running=false;if(interval)clearInterval(interval);interval=null;keepAwake(false);$("pauseBtn").textContent="Resume";$("phase").textContent="Paused";updateTimer();}
+ else{paused=false;running=true;stepEnd=Date.now()+Math.max(0,remaining)*1000;$("pauseBtn").textContent="Pause";interval=setInterval(tick,500);speak("Back to work.");keepAwake(true);}
+});
+$("skipBtn").addEventListener("click",()=>{
+ if(!started)return;
+ stepIndex++;
+ if(stepIndex>=steps.length){finishModule();return;}
+ remaining=steps[stepIndex].secs;stepEnd=Date.now()+remaining*1000;announceStep();
+});
+$("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="home-corner-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);});
+$("resetBtn").addEventListener("click",()=>{if(confirm("Reset all saved progress? This cannot be undone unless you exported a backup.")){state={completed:[],selectedModule:state.selectedModule};save();stopTimer();renderPicker();loadModule();renderProgress();renderStreak();}});
+/* ---- Spotify in-app playback via PKCE (no server needed) ---- */
+const SPOTIFY_CLIENT_ID = "6f9fc64b915e4576baa41ee26ca159ca";
+const SPOTIFY_REDIRECT_URI = location.origin + location.pathname;
+const SPOTIFY_SCOPES = ["streaming","user-read-playback-state","user-modify-playback-state","user-read-currently-playing"].join(" ");
+const SPOTIFY_TOKEN_KEY = "basementbelt_spotify_tokens";
+let spotifyPlayer = null, spotifyDeviceId = null, spotifyReady = false, spotifyTrack = "", spotifyTrackName = "", spotifyTrackArtists = "", spotifyArtwork = "", spotifyPaused = true, spotifyTrackUri = "", spotifyPlaylistTracks = [], spotifyTracksLoading = false, spListOpen = false;
+function escHtml(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function spotifySetupDone(){return SPOTIFY_CLIENT_ID && SPOTIFY_CLIENT_ID.indexOf("PASTE")!==0;}
+function spotifyTokens(){try{return JSON.parse(localStorage.getItem(SPOTIFY_TOKEN_KEY)||"null");}catch(e){return null;}}
+function spotifySaveTokens(t){try{localStorage.setItem(SPOTIFY_TOKEN_KEY,JSON.stringify(t));}catch(e){}}
+function spotifyClearTokens(){try{localStorage.removeItem(SPOTIFY_TOKEN_KEY);}catch(e){}}
+function spRand(n){const abc="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";const a=new Uint8Array(n);crypto.getRandomValues(a);let s="";for(let i=0;i<n;i++)s+=abc[a[i]%66];return s;}
+async function spChallenge(v){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));const b=String.fromCharCode.apply(null,new Uint8Array(d));return btoa(b).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+async function spotifyLogin(){
+ if(!window.isSecureContext){alert("Spotify login needs a secure (https) page.");return;}
+ const verifier=spRand(64),state=spRand(16);
+ let challenge="";try{challenge=await spChallenge(verifier);}catch(e){alert("This browser can't do the Spotify login. Please use Chrome.");return;}
+ try{sessionStorage.setItem("sp_verifier",verifier);sessionStorage.setItem("sp_state",state);}catch(e){alert("This browser blocked the login. Please use Chrome.");return;}
+ const q=new URLSearchParams({response_type:"code",client_id:SPOTIFY_CLIENT_ID,scope:SPOTIFY_SCOPES,redirect_uri:SPOTIFY_REDIRECT_URI,state:state,code_challenge_method:"S256",code_challenge:challenge});
+ location.href="https://accounts.spotify.com/authorize?"+q.toString();
+}
+async function spotifyHandleCallback(){
+ const params=new URLSearchParams(location.search);
+ const code=params.get("code"),state=params.get("state");
+ if(!code){renderSpotifyConnect();if(spotifyTokens())initSpotifyPlayer();return;}
+ const okState=state===sessionStorage.getItem("sp_state"),verifier=sessionStorage.getItem("sp_verifier");
+ try{sessionStorage.removeItem("sp_verifier");sessionStorage.removeItem("sp_state");}catch(e){}
+ history.replaceState(null,"",location.pathname);
+ if(okState&&verifier){
+  try{
+   const res=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"authorization_code",code:code,redirect_uri:SPOTIFY_REDIRECT_URI,client_id:SPOTIFY_CLIENT_ID,code_verifier:verifier})});
+   const data=await res.json();
+   if(data.access_token)spotifySaveTokens({access_token:data.access_token,refresh_token:data.refresh_token||"",expires_at:Date.now()+((data.expires_in||3600)*1000)});
+  }catch(e){}
+ }
+ renderSpotifyConnect();initSpotifyPlayer();
+}
+async function spotifyToken(){
+ const t=spotifyTokens();if(!t||!t.access_token)return null;
+ if(Date.now()<t.expires_at-60000)return t.access_token;
+ if(!t.refresh_token)return null;
+ try{
+  const res=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"refresh_token",refresh_token:t.refresh_token,client_id:SPOTIFY_CLIENT_ID})});
+  const data=await res.json();
+  if(data.access_token){const nt={access_token:data.access_token,refresh_token:data.refresh_token||t.refresh_token,expires_at:Date.now()+((data.expires_in||3600)*1000)};spotifySaveTokens(nt);return nt.access_token;}
+ }catch(e){}
+ return null;
+}
+function spotifyPlaylistUri(){
+ const u=spotifyLink(prefs.spotify||"");
+ const m=u&&u.match(/open\.spotify\.com\/(playlist|album|track)\/([A-Za-z0-9]+)/);
+ return m?("spotify:"+m[1]+":"+m[2]):null;
+}
+function initSpotifyPlayer(){
+ if(!spotifySetupDone()||!spotifyTokens())return;
+ if(window.Spotify){createSpotifyPlayer();return;}
+ if(document.querySelector('script[data-spotify-sdk]'))return;
+ const s=document.createElement("script");s.src="https://sdk.scdn.co/spotify-player.js";s.setAttribute("data-spotify-sdk","1");
+ s.onerror=function(){renderSpotifyConnect();};
+ document.head.appendChild(s);
+}
+window.onSpotifyWebPlaybackSDKReady=function(){createSpotifyPlayer();};
+function createSpotifyPlayer(){
+ if(spotifyPlayer||!window.Spotify)return;
+ spotifyPlayer=new Spotify.Player({name:"Home Corner",getOAuthToken:function(cb){spotifyToken().then(function(t){if(t)cb(t);});},volume:0.8});
+ spotifyPlayer.addListener("ready",function(d){spotifyDeviceId=d.device_id;spotifyReady=true;renderSpotifyConnect();});
+ spotifyPlayer.addListener("not_ready",function(){spotifyReady=false;spotifyDeviceId=null;renderSpotifyConnect();});
+ spotifyPlayer.addListener("player_state_changed",function(st){
+  if(!st)return;
+  const t=st.track_window&&st.track_window.current_track;
+  spotifyTrack=t?(t.name+" — "+t.artists.map(function(a){return a.name;}).join(", ")):"";
+  spotifyTrackName=t?t.name:"";
+  spotifyTrackArtists=t?t.artists.map(function(a){return a.name;}).join(", "):"";
+  spotifyTrackUri=t?t.uri:"";
+  spotifyArtwork=(t&&t.album&&t.album.images&&t.album.images.length)?t.album.images[t.album.images.length-1].url:"";
+  spotifyPaused=!!st.paused;renderSpotifyConnect();
+ });
+ try{const p=spotifyPlayer.connect();if(p&&p.catch)p.catch(function(){});}catch(e){}
+}
+async function spotifyApi(path,method,body){
+ const tok=await spotifyToken();if(!tok||!spotifyDeviceId)return false;
+ const url="https://api.spotify.com/v1/me/player/"+path+(path.indexOf("?")<0?"?":"&")+"device_id="+encodeURIComponent(spotifyDeviceId);
+ try{
+  const res=await fetch(url,{method:method||"PUT",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+  return res.ok;
+ }catch(e){return false;}
+}
+async function spotifyStartPlaylist(){const uri=spotifyPlaylistUri();if(!uri)return;await spotifyApi("play","PUT",{context_uri:uri});}
+async function spotifyToggle(){await spotifyApi(spotifyPaused?"play":"pause","PUT");}
+async function spotifyNext(){await spotifyApi("next","POST");}
+function spotifyPlaylistId(){
+ const u=spotifyLink(prefs.spotify||"");
+ const m=u&&u.match(/open\.spotify\.com\/(playlist|album)\/([A-Za-z0-9]+)/);
+ return m?{kind:m[1],id:m[2]}:null;
+}
+async function spotifyLoadPlaylist(){
+ if(spotifyTracksLoading)return;spotifyTracksLoading=true;
+ spotifyPlaylistTracks=[];
+ const tok=await spotifyToken(),pl=spotifyPlaylistId();
+ if(tok&&pl){
+  try{
+   const ep=pl.kind==="album"?"albums":"playlists";
+   const res=await fetch("https://api.spotify.com/v1/"+ep+"/"+pl.id+"/tracks?fields=items(track(name,artists(name),uri))&limit=50",{headers:{Authorization:"Bearer "+tok}});
+   const data=await res.json();
+   spotifyPlaylistTracks=(data.items||[]).map(function(i){return i.track;}).filter(Boolean).map(function(t){return{name:t.name,artists:t.artists.map(function(a){return a.name;}).join(", "),uri:t.uri};});
+  }catch(e){}
+ }
+ spotifyTracksLoading=false;renderSpotifyConnect();
+}
+async function spotifyPlayTrack(uri){
+ const plUri=spotifyPlaylistUri();
+ if(plUri)await spotifyApi("play","PUT",{context_uri:plUri,offset:{uri:uri}});
+ else await spotifyApi("play","PUT",{uris:[uri]});
+}
+function renderTrackList(){
+ if(!spotifyPlaylistTracks.length)return "";
+ let h='<div id="spTrackList" style="margin-top:8px;max-height:240px;overflow-y:auto;background:#161616;border-radius:14px;padding:8px">';
+ for(let i=0;i<spotifyPlaylistTracks.length;i++){
+  const t=spotifyPlaylistTracks[i],active=t.uri===spotifyTrackUri;
+  h+='<div class="sp-track" data-uri="'+t.uri+'" style="padding:10px 12px;cursor:pointer;border-radius:10px;'+(active?"background:#2e2e2e;":"")+'">'
+   +'<div style="font-weight:700;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(t.name)+'</div>'
+   +'<div style="font-size:12px;color:#9a9a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(t.artists)+'</div></div>';
+ }
+ return h+'</div>';
+}
+function spotifyDisconnect(){try{spotifyPlayer&&spotifyPlayer.disconnect();}catch(e){}spotifyPlayer=null;spotifyDeviceId=null;spotifyReady=false;spotifyTrack="";spotifyTrackName="";spotifyTrackArtists="";spotifyArtwork="";spotifyPaused=true;spotifyTrackUri="";spotifyPlaylistTracks=[];spotifyTracksLoading=false;spListOpen=false;spotifyClearTokens();renderSpotifyConnect();}
+function renderSpotifyConnect(){
+ const box=$("spotifyConnect");if(!box)return;
+ if(!spotifySetupDone()){box.innerHTML="";return;}
+ if(!spotifyTokens()){
+  box.innerHTML='<button class="primary full" id="spConnectBtn" type="button" style="background:#1db954;color:#fff">Connect Spotify</button>'
+   +'<p class="small muted" style="margin:8px 0 0">One-time login. After that, full songs play right here in the app.</p>'
+   +'<p class="small muted" style="margin:8px 0 0">First, add this exact URL as a Redirect URI in your Spotify developer dashboard:<br><code style="color:var(--gold);word-break:break-all">'+escHtml(SPOTIFY_REDIRECT_URI)+'</code></p>' ;
+  $("spConnectBtn").addEventListener("click",spotifyLogin);return;
+ }
+ if(!spotifyPlaylistTracks.length&&spotifyReady)spotifyLoadPlaylist();
+ let sub="";
+ if(!spotifyReady)sub='<p class="small muted" style="margin:0 0 8px">Connecting player…</p>';
+ let art;
+ if(spotifyArtwork)art='<img src="'+escHtml(spotifyArtwork)+'" alt="" style="width:44px;height:44px;border-radius:9px;flex:none;object-fit:cover">';
+ else art='<span style="width:44px;height:44px;border-radius:9px;flex:none;background:linear-gradient(135deg,#a9c8de,#1e3a4f)"></span>';
+ box.innerHTML=sub
+  +'<div style="display:flex;align-items:center;gap:10px;background:#161616;border-radius:18px;padding:9px 12px;box-shadow:0 6px 18px rgba(0,0,0,.28)">'
+  +art
+  +'<div id="spTrackTap" style="flex:1;min-width:0;cursor:pointer">'
+  +'<div style="font-weight:700;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(spotifyTrackName||"Nothing playing")+'</div>'
+  +'<div style="font-size:12px;color:#9a9a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(spotifyTrackArtists||"Tap here to browse tracks")+'</div>'
+  +'</div>'
+  +'<button id="spPlayBtn" type="button" aria-label="Play or pause" style="width:46px;height:46px;border-radius:50%;background:#fff;color:#161616;border:0;font-size:15px;font-weight:800;cursor:pointer;flex:none">'+(spotifyPaused?"\u25B6":"\u23F8")+'</button>'
+  +'<button id="spNextBtn" type="button" aria-label="Next track" style="background:none;border:0;color:#8f8f8f;font-size:20px;cursor:pointer;flex:none;padding:6px">\u23ED</button>'
+  +'</div>'
+  +'<div id="spListWrap" style="display:'+(spListOpen?"block":"none")+'">'+renderTrackList()+'</div>'
+  +'<p class="small muted" style="margin:8px 0 0"><a href="#" id="spDisc" style="color:var(--muted)">Disconnect Spotify</a> · Tap a track to play it.</p>';
+ $("spPlayBtn").addEventListener("click",spotifyToggle);
+ $("spNextBtn").addEventListener("click",spotifyNext);
+ $("spTrackTap").addEventListener("click",function(){spListOpen=!spListOpen;renderSpotifyConnect();});
+ const rows=box.querySelectorAll(".sp-track");
+ for(let i=0;i<rows.length;i++)(function(el){el.addEventListener("click",function(){spotifyPlayTrack(el.getAttribute("data-uri"));});})(rows[i]);
+ $("spDisc").addEventListener("click",function(e){e.preventDefault();spotifyDisconnect();});
+}
+function spotifyLink(raw){
+ raw=(raw||"").trim();
+ let m=raw.match(/^spotify:(playlist|album|track|show|episode|artist):([A-Za-z0-9]+)$/i);
+ if(!m)m=raw.match(/^https?:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(?:embed\/)?(playlist|album|track|show|episode|artist)\/([A-Za-z0-9]+)/i);
+ return m?`https://open.spotify.com/${m[1].toLowerCase()}/${m[2]}`:"";
+}
+// In-app Spotify player (Connect flow above) handles playback; this area stays
+// empty unless no playlist is set.
+function renderMusic(){
+ const u=spotifyLink(prefs.spotify);
+ const box=$("musicEmbed");
+ if(!u){box.innerHTML='<p class="muted small" style="margin:0">No playlist yet. Paste a Spotify link below.</p>';box.style.display="";return;}
+ box.innerHTML="";box.style.display="none";
+}
+$("spotifySave").addEventListener("click",()=>{
+ const v=$("spotifyInput").value.trim();
+ if(/spotify\.link\//i.test(v)){$("musicMsg").textContent="That's a short link. Open it in Chrome, then copy the address from the address bar and paste that here.";return}
+ const u=spotifyLink(v);
+ if(!u){$("musicMsg").textContent="That doesn't look like a Spotify link. In Spotify, tap Share, then Copy link.";return}
+ prefs.spotify=u;savePrefs();renderMusic();spotifyPlaylistTracks=[];spotifyLoadPlaylist();$("spotifyInput").value="";$("musicMsg").textContent="Playlist saved on this device.";
+});
+/* ---------- init ---------- */
+renderPicker();loadModule();renderProgress();renderStreak();renderPlanLists();renderFightCard();renderVoice();
+renderMusic();renderSpotifyConnect();spotifyHandleCallback();
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running&&!paused){tick();keepAwake(true);}});
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
