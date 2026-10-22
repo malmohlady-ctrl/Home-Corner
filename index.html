@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="player.css">
-<title>Home Corner — Home Workout</title>
+<title>Lace Up — Home Workout</title>
 <style>
 :root{--bg:#141b2e;--card:#1c2742;--ink:#f5eeda;--muted:#a8b4d4;--primary:#d4a72c;--primaryT:#f6d47a;--primary2:#2e2a1a;--gold:#f6d47a;--gold2:#2e2a1a;--line:#2c3a5e}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -57,10 +57,10 @@ details summary{cursor:pointer;font-weight:700}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="eyebrow">Home workout · No gym required</div><h1>HOME CORNER</h1></div></header>
+<header><div class="wrap"><div class="eyebrow">One session · ~45 minutes · No gym required</div><h1>LACE UP</h1></div></header>
 <main>
 <section id="train" class="panel active">
-<div class="card"><h1 class="page">Train</h1><p class="sub">Your corner is ready. Pick a workout.</p><div id="modulePicker"></div></div>
+<div class="card"><h1 class="page">Train</h1><p class="sub">Everything, in one go. Hit start and don't think again for 45 minutes.</p><div id="modulePicker"></div></div>
 <div class="card">
 <div class="row between"><div><div class="small muted">UP NEXT</div><h2 id="workoutTitle">Dumbbell Circuit</h2></div><span class="pill crimson" id="workoutDuration">~29 min</span></div>
 <p id="workoutSummary" class="muted"></p>
@@ -196,11 +196,14 @@ function comboWords(c){return c.split("-").map(n=>NUMW[n]||n).join(", ")+"!";}
 const R1=["1-2","1-1-2","2-3-2","1-2-3-2"],R2=["1-2-3","3-2-3","1-3-2","2-4-2"],R3=["1-6-3-2","5-2-3","2-5-2-3","1-2-5-2"];
 const R4ALL=R1.concat(R2,R3);
 function comboClip(c){return "coach/combo-"+c+".mp3";}
-function buildBoxing(){
+function buildBoxing(opts){
+ opts=opts||{};
  const steps=[];
+ if(!opts.short){
  steps.push({label:"Warm-up",sub:"Arm circles",secs:40,say:"Warm up. Big arm circles.",clip:"coach/warm-arms.mp3"});
  steps.push({label:"Warm-up",sub:"Torso twists",secs:40,say:"Torso twists. Loosen up.",clip:"coach/warm-torso.mp3"});
  steps.push({label:"Warm-up",sub:"Bounce on your toes",secs:40,say:"Bounce on your toes. Stay light.",clip:"coach/warm-bounce.mp3"});
+ }
  const rounds=[
   {name:"Round 1 — The One-Two School",intro:"Round 1. The One-Two School. Hands up, chin down!",clip:"coach/round1-intro.mp3",list:R1,next:"Next: Round 2, Hooks"},
   {name:"Round 2 — Hooks",intro:"Round 2. Hooks. Turn those hips!",clip:"coach/round2-intro.mp3",list:R2,next:"Next: Round 3, Upstairs Downstairs"},
@@ -208,8 +211,9 @@ function buildBoxing(){
  rounds.forEach(r=>{
   steps.push({label:r.name,sub:"Round begins",secs:5,say:r.intro,clip:r.clip});
   for(let i=0;i<9;i++){const c=r.list[i%r.list.length];steps.push({label:r.name,sub:"Call: "+c,secs:20,say:comboWords(c),clip:comboClip(c)});}
-  steps.push({label:"Rest",sub:r.next,secs:60,say:"Rest. Shake it out. Breathe.",clip:"coach/rest-shake.mp3"});
+  steps.push({label:"Rest",sub:opts.short?"Next round coming up":r.next,secs:opts.short?45:60,say:"Rest. Shake it out. Breathe.",clip:"coach/rest-shake.mp3"});
  });
+ if(opts.short){ if(steps.length&&steps[steps.length-1].label==="Rest")steps.pop(); return steps; }
  steps.push({label:"Round 4 — Championship Round",sub:"Freestyle power",secs:5,say:"Championship round. Freestyle power. Leave it all in the ring!",clip:"coach/round4-intro.mp3"});
  for(let i=0;i<8;i++){const c=R4ALL[Math.floor(Math.random()*R4ALL.length)];steps.push({label:"Round 4 — Championship Round",sub:"Freestyle: "+c,secs:20,say:comboWords(c),clip:comboClip(c)});}
  steps.push({label:"Round 4 — Championship Round",sub:"EMPTY THE TANK",secs:20,say:"Everything you've got! Final 20 seconds!",clip:"coach/empty-tank.mp3"});
@@ -219,17 +223,24 @@ function buildBoxing(){
  return steps;
 }
 const CORE=[["Plank",40],["Dead Bug",40],["Russian Twists",40],["Mountain Climbers",40],["Leg Raises",40],["Bicycle Crunches",40],["Side Plank — Left",40],["Side Plank — Right",40]];
-function buildCore(){
+function buildCore(count){
+ const LIST=CORE.slice(0,count||CORE.length);
  const steps=[{label:"Get ready",sub:"First up: Plank",secs:10,say:"Get ready. Core finisher. First up: plank.",clip:"coach/core-ready.mp3"}];
  const CORECLIP={"Plank":"coach/abs-plank.mp3","Dead Bug":"coach/core-dead-bug.mp3","Russian Twists":"coach/abs-russian-twists.mp3","Mountain Climbers":"coach/core-climbers.mp3","Leg Raises":"coach/abs-leg-raises.mp3","Bicycle Crunches":"coach/core-bicycle.mp3","Side Plank — Left":"coach/core-side-left.mp3","Side Plank — Right":"coach/core-side-right.mp3"};
- CORE.forEach((c,i)=>{
-  const next=CORE[i+1];
-  steps.push({label:"Exercise "+(i+1)+" of 8",sub:c[0]+" — 40 seconds",secs:40,say:c[0]+". Go!",clip:CORECLIP[c[0]]});
+ LIST.forEach((c,i)=>{
+  const next=LIST[i+1];
+  steps.push({label:"Exercise "+(i+1)+" of "+LIST.length,sub:c[0]+" — 40 seconds",secs:40,say:c[0]+". Go!",clip:CORECLIP[c[0]]});
   steps.push({label:"Rest",sub:next?("Next up: "+next[0]):"Last one done",secs:20,say:"Rest.",clip:"coach/rest.mp3"});
  });
  return steps;
 }
+function buildLaceUp(){
+ const steps=buildDumbbell();
+ steps.push({label:"Shadow Boxing",sub:"Dumbbells down — 3 rounds",secs:20,say:"Dumbbells down. Shadow boxing next. Three rounds. Hands up, chin down!",clip:null});
+ return steps.concat(buildBoxing({short:true}),buildCore(6));
+}
 const MODULES={
+ laceup:{name:"Lace Up",tag:"~45 min",desc:"The full session, bell to bell: the 29-exercise dumbbell circuit, 3 rounds of shadow boxing, and the core finisher. One start, no decisions.",build:buildLaceUp,done:"Session complete. Lift, box, core — the full distance. Laces off. You earned the couch."},
  dumbbell:{name:"Dumbbell Circuit",tag:"~29 min",desc:"29 exercises from your upper-body video. 45 seconds work, 15 seconds rest. Chest, back, arms, shoulders and abs.",build:buildDumbbell,done:"Dumbbell circuit complete. Guns loaded. Go rehydrate."},
  boxing:{name:"Championship Rounds",tag:"~20 min",desc:"Shadow boxing, corner-coach style. Guided warm-up, four 3-minute rounds with called combos, and a 2-minute abs blast.",build:buildBoxing,done:"Championship rounds complete. You went the distance."},
  core:{name:"Core Finisher",tag:"~8 min",desc:"8 exercises, 40 seconds on, 20 seconds off. Short, sharp, done.",build:buildCore,done:"Core finisher complete. Solid work."}
@@ -294,11 +305,11 @@ function finishModule(){
 }
 /* ---------- ui ---------- */
 function renderPicker(){
- $("modulePicker").innerHTML=Object.keys(MODULES).map(k=>{
-  const m=MODULES[k];
-  return '<button class="modbtn'+(k===state.selectedModule?" sel":"")+'" data-m="'+k+'"><div class="row between"><span class="t">'+esc(m.name)+'</span><span class="pill crimson">'+m.tag+'</span></div><div class="d">'+esc(m.desc)+'</div></button>';
- }).join("");
- document.querySelectorAll(".modbtn").forEach(b=>b.addEventListener("click",()=>{state.selectedModule=b.dataset.m;save();renderPicker();loadModule();}));
+ $("modulePicker").innerHTML='<div class="modbtn sel" style="cursor:default"><div class="row between"><span class="t">The Session</span><span class="pill crimson">~45 min</span></div>'
+ +'<div class="d">🏋️ <b>Lift</b> — full-body dumbbell circuit · 29 exercises</div>'
+ +'<div class="d">🥊 <b>Box</b> — shadow boxing · 3 rounds, called combos</div>'
+ +'<div class="d">🔥 <b>Core</b> — the finisher · 6 exercises</div></div>';
+ state.selectedModule="laceup";
 }
 function loadModule(){
  currentModule=state.selectedModule;
@@ -380,14 +391,14 @@ $("importFile").addEventListener("change",e=>{
    state={completed:data.completed,selectedModule:MODULES[data.selectedModule]?data.selectedModule:"dumbbell"};
    save();renderPicker();loadModule();renderProgress();renderStreak();
    alert("Backup restored.");
-  }catch(err){alert("That file isn't a valid Home Corner backup. Nothing was changed.");}
+  }catch(err){alert("That file isn't a valid Lace Up backup. Nothing was changed.");}
  };
  rd.readAsText(f);
 });
 $("resetBtn").addEventListener("click",()=>{if(confirm("Reset all saved progress? This cannot be undone unless you exported a backup.")){state={completed:[],selectedModule:state.selectedModule};save();stopTimer();renderPicker();loadModule();renderProgress();renderStreak();}});
 /* ---------- init ---------- */
 renderPicker();loadModule();renderProgress();renderStreak();renderPlanLists();renderFightCard();renderVoice();
-if(window.AppMusic)AppMusic.init({mount:"musicMount",storageKey:"appmusic.homecorner",appName:"Home Corner",clientId:"6f9fc64b915e4576baa41ee26ca159ca",playlistId:"2oOPWpO9fqJUGhjunEAj6h"});
+if(window.AppMusic)AppMusic.init({mount:"musicMount",storageKey:"appmusic.homecorner",appName:"Lace Up",clientId:"6f9fc64b915e4576baa41ee26ca159ca",playlistId:"2oOPWpO9fqJUGhjunEAj6h"});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running&&!paused){tick();keepAwake(true);}});
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 </script>
